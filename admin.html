@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Wickramanayake Group</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gray-50 text-gray-800 antialiased h-screen flex flex-col font-body">
+
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <div class="h-full w-full flex flex-col md:flex-row bg-gray-50/50">
+        <!-- Sidebar -->
+        <aside
+            class="w-full md:w-72 bg-white/90 backdrop-blur-md border-r border-gray-100 flex flex-col h-auto md:h-full z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+            <div class="p-6 flex items-center gap-4 border-b border-gray-100">
+                <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center p-1">
+                    <img src="logo.png" alt="Logo" class="w-full h-full object-contain"
+                        onerror="this.src='https://via.placeholder.com/50?text=W'">
+                </div>
+                <div>
+                    <h2 class="font-bold text-gray-800 leading-tight font-sans text-lg">Admin Panel</h2>
+                    <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Owner</span>
+                </div>
+            </div>
+
+            <div class="md:hidden p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <span class="text-sm font-semibold text-gray-600">Menu</span>
+                <button id="mobile-menu-btn" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
+            <nav id="admin-nav" class="flex-1 overflow-y-auto p-4 space-y-2 hidden md:block">
+                <a href="#" data-target="admin-dashboard"
+                    class="nav-link active flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-green-50 hover:text-green-700 font-medium">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i><span>Dashboard</span>
+                </a>
+                <a href="#" data-target="admin-reports"
+                    class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-green-50 hover:text-green-700 font-medium">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i><span>Monthly Reports</span>
+                </a>
+                <a href="#" data-target="admin-operations"
+                    class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-green-50 hover:text-green-700 font-medium bg-green-50/50">
+                    <i class="fa-solid fa-cash-register w-5 text-center text-green-600"></i><span
+                        class="text-green-800">Shop Operations</span>
+                </a>
+                <a href="#" data-target="admin-reps"
+                    class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-green-50 hover:text-green-700 font-medium">
+                    <i class="fa-solid fa-user-tie w-5 text-center"></i><span>Manage Refs</span>
+                </a>
+                <a href="#" data-target="admin-shops"
+                    class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-green-50 hover:text-green-700 font-medium">
+                    <i class="fa-solid fa-store w-5 text-center"></i><span>Manage Shops</span>
+                </a>
+                <a href="#" data-target="admin-items"
+                    class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-green-50 hover:text-green-700 font-medium">
+                    <i class="fa-solid fa-box-open w-5 text-center"></i><span>Manage Items</span>
+                </a>
+                <a href="#" data-target="admin-activity"
+                    class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-green-50 hover:text-green-700 font-medium">
+                    <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i><span>Ref Activity</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100 hidden md:block" id="admin-logout-container">
+                <button
+                    class="logout-btn w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl font-medium">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 h-full overflow-y-auto p-4 md:p-8 relative">
+
+            <!-- Dashboard Section -->
+            <div id="admin-dashboard" class="content-section active-section space-y-6">
+                <!-- Premium Banner -->
+                <div class="relative w-full h-48 rounded-3xl overflow-hidden mb-8 shadow-lg">
+                    <img src="default_shop.png" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-6 left-6">
+                        <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Overview</h1>
+                        <p class="text-gray-300 mt-1">Here's what's happening with your business today.</p>
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
+                        WICKRAMANAYAKE GROUP (PVT) LTD.</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Refs</p>
+                        <h3 class="text-4xl font-bold text-gray-800 mt-2 font-sans" id="stat-reps">0</h3>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Shops</p>
+                        <h3 class="text-4xl font-bold text-gray-800 mt-2 font-sans" id="stat-shops">0</h3>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Items</p>
+                        <h3 class="text-4xl font-bold text-gray-800 mt-2 font-sans" id="stat-items">0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mt-8">
+                    <h2 class="text-xl font-bold text-gray-800 font-sans mb-6">Recent Activity</h2>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-100 text-sm text-gray-500 uppercase tracking-wider">
+                                <th class="pb-3 font-semibold pl-2">Action By</th>
+                                <th class="pb-3 font-semibold">Shop Visited</th>
+                                <th class="pb-3 font-semibold text-right">Value</th>
+                                <th class="pb-3 font-semibold text-right pr-2">Date & Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-recent-activity" class="text-sm divide-y divide-gray-50"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Operations Section -->
+            <div id="admin-operations" class="content-section space-y-6">
+                <div class="relative w-full h-48 rounded-3xl overflow-hidden mb-8 shadow-lg">
+                    <img src="default_shop.png" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-6 left-6">
+                        <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Shop Operations</h1>
+                        <p class="text-gray-300 mt-1">Deliver items or collect money from your shops directly.</p>
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
+                        WICKRAMANAYAKE GROUP (PVT) LTD.</div>
+                </div>
+
+                <div
+                    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6 p-4 flex items-center sticky top-0 z-10">
+                    <i class="fa-solid fa-search text-gray-400 mr-3"></i>
+                    <input type="text" id="search-operations" placeholder="Search shops to operate on..."
+                        class="w-full bg-transparent outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="operations-shops-list"></div>
+            </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="admin-reports" class="content-section space-y-6">
+                <div class="relative w-full h-48 rounded-3xl overflow-hidden mb-8 shadow-lg">
+                    <img src="default_item.png" class="w-full h-full object-cover" style="object-position: top;">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 flex justify-between items-end w-[calc(100%-3rem)]">
+                        <div>
+                            <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Monthly Financial Report
+                            </h1>
+                            <p class="text-gray-300 mt-1">Gains and Sales generated from Ref orders.</p>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <div
+                                class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/30 text-white shadow-sm">
+                                <select id="report-month"
+                                    class="outline-none text-white font-semibold bg-transparent [&>option]:text-gray-800">
+                                    <!-- Populated via JS -->
+                                </select>
+                            </div>
+                            <button onclick="exportReportToPDF()"
+                                class="bg-white text-blue-600 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-gray-100 transition flex items-center gap-2">
+                                <i class="fa-solid fa-file-pdf"></i> PDF
+                            </button>
+                            <button onclick="clearMonthlyReport()"
+                                class="bg-red-500/20 backdrop-blur-md text-red-100 border border-red-500/30 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-red-500/40 transition flex items-center gap-2">
+                                <i class="fa-solid fa-trash-can"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
+                        WICKRAMANAYAKE GROUP (PVT) LTD.</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 shadow-lg text-white">
+                        <p class="text-blue-100 font-semibold uppercase tracking-wider text-sm mb-1">Total Sales Revenue
+                        </p>
+                        <h3 class="text-3xl font-bold font-sans" id="report-sales">Rs. 0.00</h3>
+                    </div>
+                    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 shadow-lg text-white">
+                        <p class="text-orange-100 font-semibold uppercase tracking-wider text-sm mb-1">Total Cost Value
+                        </p>
+                        <h3 class="text-3xl font-bold font-sans" id="report-costs">Rs. 0.00</h3>
+                    </div>
+                    <div
+                        class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 shadow-lg text-white relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-xl"></div>
+                        <p class="text-green-100 font-semibold uppercase tracking-wider text-sm mb-1">Total Gain
+                            (Profit)</p>
+                        <h3 class="text-4xl font-bold font-sans" id="report-profit">Rs. 0.00</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h2 class="text-xl font-bold text-gray-800 font-sans mb-6">Orders This Month</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
+                                    <th class="p-3 font-semibold">Date</th>
+                                    <th class="p-3 font-semibold">Action By</th>
+                                    <th class="p-3 font-semibold">Shop</th>
+                                    <th class="p-3 font-semibold text-right">Items</th>
+                                    <th class="p-3 font-semibold text-right">Revenue</th>
+                                    <th class="p-3 font-semibold text-right">Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-orders-list" class="text-sm divide-y divide-gray-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reps Section -->
+            <div id="admin-reps" class="content-section space-y-6">
+                <div class="relative w-full h-48 rounded-3xl overflow-hidden mb-8 shadow-lg">
+                    <img src="default_shop.png" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 flex justify-between items-end w-[calc(100%-3rem)]">
+                        <div>
+                            <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Manage Refs</h1>
+                            <p class="text-gray-300 mt-1">Add, update, or remove Sales Representatives.</p>
+                        </div>
+                        <button onclick="openModal('rep-modal')"
+                            class="bg-green-600 hover:bg-green-500 text-white px-5 py-2.5 rounded-xl shadow-lg border border-green-500 flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add Ref
+                        </button>
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
+                        WICKRAMANAYAKE GROUP (PVT) LTD.</div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="reps-list"></div>
+            </div>
+
+            <!-- Shops Section -->
+            <div id="admin-shops" class="content-section space-y-6">
+                <div class="relative w-full h-48 rounded-3xl overflow-hidden mb-8 shadow-lg">
+                    <img src="default_shop.png" class="w-full h-full object-cover" style="object-position: bottom;">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 flex justify-between items-end w-[calc(100%-3rem)]">
+                        <div>
+                            <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Manage Shops</h1>
+                            <p class="text-gray-300 mt-1">Assign shops to your Refs and edit details.</p>
+                        </div>
+                        <button onclick="openShopModal()"
+                            class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl shadow-lg border border-blue-500 flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add Shop
+                        </button>
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
+                        WICKRAMANAYAKE GROUP (PVT) LTD.</div>
+                </div>
+
+                <div
+                    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6 p-4 flex items-center sticky top-0 z-10">
+                    <i class="fa-solid fa-search text-gray-400 mr-3"></i>
+                    <input type="text" id="search-shops" placeholder="Search shops..."
+                        class="w-full bg-transparent outline-none">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="shops-list"></div>
+            </div>
+
+            <!-- Items Section -->
+            <div id="admin-items" class="content-section space-y-6">
+                <div class="relative w-full h-48 rounded-3xl overflow-hidden mb-8 shadow-lg">
+                    <img src="default_item.png" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 flex justify-between items-end w-[calc(100%-3rem)]">
+                        <div>
+                            <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Manage Items</h1>
+                            <p class="text-gray-300 mt-1">Control your inventory catalog, set pricing, and add premium
+                                photos.</p>
+                        </div>
+                        <button onclick="openModal('item-modal')"
+                            class="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl shadow-lg border border-orange-500 flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
+                        WICKRAMANAYAKE GROUP (PVT) LTD.</div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="items-list"></div>
+            </div>
+
+            <!-- Activity Section -->
+            <div id="admin-activity" class="content-section space-y-6">
+                <div class="relative w-full h-48 rounded-3xl overflow-hidden mb-8 shadow-lg">
+                    <img src="default_shop.png" class="w-full h-full object-cover" style="object-position: center;">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                    <div class="absolute bottom-6 left-6">
+                        <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Ref Activity Log</h1>
+                        <p class="text-gray-300 mt-1">Real-time feed of all visits, collections, and deliveries.</p>
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
+                        WICKRAMANAYAKE GROUP (PVT) LTD.</div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+                    <div class="absolute left-6 top-0 bottom-0 w-px bg-gray-200"></div>
+                    <div class="p-6 space-y-8" id="activity-timeline"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-backdrop"
+        class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity"></div>
+
+    <!-- Admin Take Money Modal -->
+    <div id="admin-take-money-modal"
+        class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md hidden opacity-0 scale-95 transition-all">
+        <div class="bg-white rounded-3xl shadow-2xl m-4 relative flex flex-col overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 to-emerald-400"></div>
+
+            <div class="p-6 pb-2 border-b border-gray-100">
+                <div class="flex justify-between items-center mb-4 mt-2">
+                    <h3 class="text-xl font-bold text-gray-800 font-sans">Admin Payment Collection</h3>
+                    <button onclick="closeModal('admin-take-money-modal')" class="text-gray-400 hover:text-gray-600"><i
+                            class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100 mb-2">
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-lg" id="admin-take-shop-name">Shop Name</h4>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-gray-500 uppercase">Balance to Take</p>
+                        <p class="text-2xl font-bold text-red-600" id="admin-take-shop-outstanding">Rs. 0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <form id="admin-take-form" class="p-6 space-y-4">
+                <input type="hidden" id="admin-take-shop-id">
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-1">Amount Given by Shop (Rs.)</label>
+                    <input type="number" step="0.01" id="admin-take-payment" placeholder="0.00"
+                        class="w-full px-4 py-4 bg-green-50 border border-green-200 text-green-700 font-bold text-xl rounded-xl outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-1">Collection Notes (Optional)</label>
+                    <textarea id="admin-take-notes" rows="2"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"></textarea>
+                </div>
+            </form>
+
+            <div class="p-6 border-t border-gray-100 bg-gray-50">
+                <button type="button" onclick="submitAdminCollection()"
+                    class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg shadow-green-500/30 flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-hand-holding-dollar"></i> Confirm Collection
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Deliver Items Modal -->
+    <div id="deliver-modal"
+        class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl hidden opacity-0 scale-95 transition-all">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 m-4 relative flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold font-sans">Deliver Items to Shop</h3>
+                <button onclick="closeModal('deliver-modal')" class="text-gray-400 hover:text-gray-600"><i
+                        class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4 flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-blue-900 text-lg" id="deliver-shop-name">Shop Name</h4>
+                    <p class="text-sm text-blue-700 font-medium mt-1">Add items here to increase their Outstanding
+                        Balance.</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs font-bold text-gray-500 uppercase">Current Balance</p>
+                    <p class="text-2xl font-bold text-red-600" id="deliver-shop-outstanding">Rs. 0.00</p>
+                </div>
+            </div>
+
+            <form id="deliver-form" class="flex-1 overflow-y-auto space-y-4 pr-2">
+                <input type="hidden" id="deliver-shop-id">
+
+                <div class="flex gap-2">
+                    <select id="deliver-item-selector"
+                        class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"></select>
+                    <input type="number" id="deliver-item-qty" min="1" value="1"
+                        class="w-24 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+                        placeholder="Qty">
+                    <button type="button" id="btn-admin-add-item"
+                        class="px-5 py-3 bg-blue-600 text-white rounded-xl font-semibold"><i
+                            class="fa-solid fa-plus"></i></button>
+                </div>
+
+                <div class="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-500 border-b border-gray-200">
+                            <tr>
+                                <th class="p-3 font-semibold">Item</th>
+                                <th class="p-3 font-semibold text-center">Qty</th>
+                                <th class="p-3 font-semibold text-right">Subtotal</th>
+                                <th class="p-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-order-items-list" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-gray-400">No items added yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Delivery Notes (Optional)</label>
+                    <textarea id="deliver-notes" rows="2"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"></textarea>
+                </div>
+            </form>
+
+            <div class="pt-4 border-t border-gray-100 mt-4 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Total Invoice Value</p>
+                    <p class="text-2xl font-bold text-blue-700" id="admin-order-total">Rs. 0.00</p>
+                </div>
+                <button type="button" onclick="submitAdminDelivery()"
+                    class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2">
+                    <i class="fa-solid fa-truck"></i> Confirm Delivery
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Return Items Modal -->
+    <div id="return-modal"
+        class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl hidden opacity-0 scale-95 transition-all">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 m-4 relative flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold font-sans">Return Items from Shop</h3>
+                <button onclick="closeModal('return-modal')" class="text-gray-400 hover:text-gray-600"><i
+                        class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="bg-red-50 p-4 rounded-xl border border-red-100 mb-4 flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-red-900 text-lg" id="return-shop-name">Shop Name</h4>
+                    <p class="text-sm text-red-700 font-medium mt-1">Return items here to decrease their Outstanding
+                        Balance.</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs font-bold text-gray-500 uppercase">Current Balance</p>
+                    <p class="text-2xl font-bold text-red-600" id="return-shop-outstanding">Rs. 0.00</p>
+                </div>
+            </div>
+
+            <form id="return-form" class="flex-1 overflow-y-auto space-y-4 pr-2">
+                <input type="hidden" id="return-shop-id">
+
+                <div class="flex gap-2">
+                    <select id="return-item-selector"
+                        class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"></select>
+                    <input type="number" id="return-item-qty" min="1" value="1"
+                        class="w-24 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+                        placeholder="Qty">
+                    <button type="button" id="btn-admin-add-return-item"
+                        class="px-5 py-3 bg-red-600 text-white rounded-xl font-semibold"><i
+                            class="fa-solid fa-plus"></i></button>
+                </div>
+
+                <div class="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-500 border-b border-gray-200">
+                            <tr>
+                                <th class="p-3 font-semibold">Item</th>
+                                <th class="p-3 font-semibold text-center">Qty</th>
+                                <th class="p-3 font-semibold text-right">Subtotal</th>
+                                <th class="p-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-return-items-list" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-gray-400">No items added yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-800 mb-2">Return Notes (Optional)</label>
+                        <textarea id="return-notes" rows="2"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-red-600 mb-2 uppercase tracking-wide">Enter Return Code (Required)</label>
+                        <input type="text" id="return-auth-code" placeholder="Enter Code"
+                            class="w-full px-4 py-3 bg-red-50 border border-red-200 text-red-700 font-bold rounded-xl outline-none text-center text-2xl tracking-[0.2em]">
+                    </div>
+                </div>
+            </form>
+
+            <div class="pt-4 border-t border-gray-100 mt-4 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Total Return Value</p>
+                    <p class="text-2xl font-bold text-red-700" id="admin-return-total">Rs. 0.00</p>
+                </div>
+                <button type="button" onclick="submitAdminReturn()"
+                    class="px-8 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold shadow-lg shadow-red-500/30 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left"></i> Confirm Return
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rep Modal -->
+    <div id="rep-modal"
+        class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md hidden opacity-0 scale-95 transition-all">
+        <!-- existing rep modal code -->
+        <div class="bg-white rounded-3xl shadow-2xl p-6 m-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800 font-sans" id="rep-modal-title">Add New Ref</h3>
+                <button onclick="closeModal('rep-modal')" class="text-gray-400 hover:text-gray-600"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="rep-form" class="space-y-4">
+                <input type="hidden" id="rep-id">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Ref Name</label>
+                    <input type="text" id="rep-name" required
+                        class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Access Code</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="rep-code" required
+                            class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none font-mono">
+                        <button type="button" onclick="generateRandomCode('rep-code')"
+                            class="px-4 py-2 bg-gray-100 rounded-xl"><i class="fa-solid fa-shuffle"></i></button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3 bg-green-600 text-white rounded-xl font-semibold">Save
+                    Ref</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Shop Modal -->
+    <div id="shop-modal"
+        class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md hidden opacity-0 scale-95 transition-all">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 m-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold font-sans" id="shop-modal-title">Add New Shop</h3>
+                <button onclick="closeModal('shop-modal')" class="text-gray-400"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="shop-form" class="space-y-4">
+                <input type="hidden" id="shop-id">
+                <input type="text" id="shop-name" placeholder="Shop Name" required
+                    class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none">
+                <input type="text" id="shop-address" placeholder="Address" required
+                    class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none">
+                <input type="text" id="shop-contact" placeholder="Contact (Optional)"
+                    class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none">
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1 mt-2 text-gray-700">Assign to Ref</label>
+                    <select id="shop-assigned-ref"
+                        class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none text-gray-700 font-semibold">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1 mt-2 text-red-600">Initial Outstanding Balance
+                        (Rs.)</label>
+                    <input type="number" step="0.01" id="shop-outstanding" placeholder="0.00"
+                        class="w-full px-4 py-2 bg-red-50 border border-red-200 rounded-xl outline-none text-red-700 font-bold">
+                </div>
+                <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold mt-4">Save
+                    Shop</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Item Modal -->
+    <div id="item-modal"
+        class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md hidden opacity-0 scale-95 transition-all">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 m-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold font-sans" id="item-modal-title">Add New Item</h3>
+                <button onclick="closeModal('item-modal')" class="text-gray-400"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="item-form" class="space-y-4">
+                <input type="hidden" id="item-id">
+                <input type="text" id="item-name" placeholder="Item Name" required
+                    class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none">
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1 mt-2 text-gray-700">Item Image URL (Optional)</label>
+                    <input type="text" id="item-image" placeholder="Leave empty for default premium image"
+                        class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none">
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold mb-1 text-gray-500">Cost Price</label>
+                        <input type="number" step="0.01" id="item-cost" placeholder="0.00" required
+                            class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none text-orange-700">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold mb-1 text-gray-500">Sale Price</label>
+                        <input type="number" step="0.01" id="item-price" placeholder="0.00" required
+                            class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none text-green-700">
+                    </div>
+                </div>
+                <textarea id="item-desc" placeholder="Description" rows="3"
+                    class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none mt-2"></textarea>
+                <button type="submit" class="w-full py-3 bg-orange-600 text-white rounded-xl font-semibold mt-4">Save
+                    Item</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Shop History Modal -->
+    <div id="shop-history-modal"
+        class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl hidden opacity-0 scale-95 transition-all">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 m-4 relative flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold font-sans">Shop Activity History</h3>
+                <button onclick="closeModal('shop-history-modal')" class="text-gray-400 hover:text-gray-600"><i
+                        class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4 flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-gray-900 text-lg" id="history-shop-name">Shop Name</h4>
+                    <p class="text-sm text-gray-500 font-medium mt-1">Full transaction log for this location.</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs font-bold text-gray-500 uppercase">Current Balance</p>
+                    <p class="text-2xl font-bold text-red-600" id="history-shop-outstanding">Rs. 0.00</p>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-4 pr-2" id="shop-history-list">
+                <!-- Activities will be populated here -->
+            </div>
+            
+            <div class="pt-4 border-t border-gray-100 mt-4 text-center">
+                <p class="text-xs text-gray-400">WICKRAMANAYAKE GROUP (PVT) LTD. - Secure Records</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="admin.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ref Portal - Wickramanayake Group</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased h-screen flex flex-col font-body">
+
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <div class="h-full w-full flex flex-col bg-gray-50">
+        <!-- Navbar -->
+        <nav class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-30">
+            <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="Logo" class="h-10 object-contain" onerror="this.src='https://via.placeholder.com/40?text=W'">
+                    <div class="leading-tight">
+                        <h2 class="font-bold text-gray-800 font-sans">Field Portal</h2>
+                        <p class="text-xs text-green-600 font-semibold" id="rep-welcome-name">Hello, Ref</p>
+                    </div>
+                </div>
+                <button class="logout-btn text-gray-500 hover:text-red-600 w-10 h-10 rounded-full hover:bg-red-50 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-power-off text-lg"></i>
+                </button>
+            </div>
+        </nav>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 max-w-5xl mx-auto w-full space-y-6">
+            <div class="relative w-full h-48 rounded-3xl overflow-hidden shadow-lg">
+                <img src="default_shop.png" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                <div class="absolute bottom-6 left-6 z-10">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white font-sans tracking-tight mb-1">Shop Visits & Collections</h1>
+                    <p class="text-gray-300 max-w-md">Select a shop to log a visit or collect payments.</p>
+                </div>
+                <div class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20 z-10">WICKRAMANAYAKE GROUP (PVT) LTD.</div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-4 border-b border-gray-100 bg-gray-50/50 sticky top-0 z-10 backdrop-blur-md">
+                    <div class="relative">
+                        <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="rep-search-shops" placeholder="Search shop name or address..." class="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl outline-none shadow-sm">
+                    </div>
+                </div>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="rep-shops-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity"></div>
+
+    <!-- Collection Modal -->
+    <div id="visit-modal" class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md hidden opacity-0 scale-95 transition-all">
+        <div class="bg-white rounded-3xl shadow-2xl m-4 relative flex flex-col overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 to-emerald-400"></div>
+            
+            <div class="p-6 pb-2 border-b border-gray-100">
+                <div class="flex justify-between items-center mb-4 mt-2">
+                    <h3 class="text-xl font-bold text-gray-800 font-sans">Payment Collection</h3>
+                    <button onclick="closeModal('visit-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100 mb-2">
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-lg" id="visit-shop-name">Shop Name</h4>
+                        <p class="text-sm text-gray-600 font-medium mt-1"><i class="fa-solid fa-phone text-xs mr-1 text-blue-500"></i> <span id="visit-shop-contact">Contact Number</span></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-gray-500 uppercase">Balance to Take</p>
+                        <p class="text-2xl font-bold text-red-600" id="visit-shop-outstanding">Rs. 0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <form id="visit-form" class="p-6 space-y-4">
+                <input type="hidden" id="visit-shop-id">
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-1">Visit Notes & Field Report</label>
+                    <textarea id="visit-notes" rows="3" placeholder="Enter visit details, shop requests, or cash collected..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none" required></textarea>
+                </div>
+            </form>
+
+            <div class="p-6 border-t border-gray-100 bg-gray-50">
+                <button type="button" onclick="submitCollection()" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg shadow-green-500/30 flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-check"></i> Submit Visit Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Modal -->
+    <div id="return-modal" class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md hidden opacity-0 scale-95 transition-all">
+        <!-- existing return modal content -->
+        <div class="bg-white rounded-3xl shadow-2xl m-4 relative flex flex-col overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 to-orange-400"></div>
+            
+            <div class="p-6 pb-2 border-b border-gray-100">
+                <div class="flex justify-between items-center mb-4 mt-2">
+                    <h3 class="text-xl font-bold text-gray-800 font-sans">Return Items</h3>
+                    <button onclick="closeModal('return-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100 mb-2">
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-lg" id="return-shop-name">Shop Name</h4>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-gray-500 uppercase">Balance</p>
+                        <p class="text-xl font-bold text-red-600" id="return-shop-outstanding">Rs. 0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <form id="return-form" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                <input type="hidden" id="return-shop-id">
+                
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-gray-800">Select Item</label>
+                    <select id="return-item-selector" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"></select>
+                </div>
+
+                <div class="flex gap-2">
+                    <input type="number" id="return-item-qty" min="1" value="1" class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none" placeholder="Qty">
+                    <button type="button" id="btn-ref-add-return" class="px-6 py-3 bg-red-600 text-white rounded-xl font-bold"><i class="fa-solid fa-plus"></i> Add</button>
+                </div>
+
+                <div class="border rounded-xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr><th class="p-2 text-left">Item</th><th class="p-2 text-center">Qty</th><th class="p-2 text-right"></th></tr>
+                        </thead>
+                        <tbody id="ref-return-list" class="divide-y"></tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-1">Return Notes</label>
+                    <textarea id="return-notes" rows="2" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-red-600 mb-1 uppercase tracking-wider">Auth Code (Required)</label>
+                    <input type="text" id="return-auth-code" placeholder="ENTER 4-DIGIT CODE" class="w-full px-4 py-3 bg-red-50 border border-red-200 text-red-700 font-bold rounded-xl outline-none text-center tracking-widest">
+                </div>
+            </form>
+
+            <div class="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Total Return</p>
+                    <p class="text-xl font-bold text-red-700" id="ref-return-total">Rs. 0.00</p>
+                </div>
+                <button type="button" onclick="submitRefReturn()" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold shadow-lg shadow-red-500/30 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shop History Modal -->
+    <div id="shop-history-modal"
+        class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md hidden opacity-0 scale-95 transition-all">
+        <div class="bg-white rounded-3xl shadow-2xl m-4 relative flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-6 border-b border-gray-100">
+                <h3 class="text-xl font-bold font-sans text-gray-800">Shop History</h3>
+                <button onclick="closeModal('shop-history-modal')" class="text-gray-400 hover:text-gray-600"><i
+                        class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="p-6 flex-1 overflow-y-auto space-y-4" id="shop-history-list">
+                <!-- Activities will be populated here -->
+            </div>
+            
+            <div class="p-4 border-t border-gray-100 text-center bg-gray-50">
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Wickramanayake Group (PVT) Ltd.</p>
+            </div>
+        </div>
+    </div>

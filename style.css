@@ -1,0 +1,97 @@
+/* Custom CSS for Wickramanayake Group App */
+
+/* Custom Scrollbar for a premium feel */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Hide sections that are not active */
+.view-section {
+    display: none;
+}
+
+.view-section.active-view {
+    display: flex;
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active-section {
+    display: block;
+}
+
+/* Nav Link active state styling */
+.nav-link.active {
+    background-color: #f0fdf4;
+    color: #15803d;
+    font-weight: 600;
+}
+
+/* Modal animations */
+.custom-modal.show {
+    display: block;
+}
+
+.custom-modal.show-animate {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#modal-backdrop.show {
+    display: block;
+}
+
+#modal-backdrop.show-animate {
+    opacity: 1;
+}
+
+/* Toast Notification Styles */
+.toast {
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Timeline specific styles */
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -29px; /* Adjust based on padding to align with the vertical line */
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 1px #e2e8f0;
+    z-index: 1;
+}
+
+/* Glassmorphism helpers */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
