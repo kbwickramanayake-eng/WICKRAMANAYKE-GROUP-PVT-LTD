@@ -16,6 +16,11 @@ const appState = {
         const storedData = localStorage.getItem('wg_data');
         if (storedData) {
             this.data = JSON.parse(storedData);
+            // Migration: Ensure all shops have an inventory object
+            this.data.shops.forEach(shop => {
+                if (!shop.inventory) shop.inventory = {};
+            });
+            this.save();
         } else {
             this.data = { reps: [], shops: [], items: [], activities: [], currentUser: null };
             this.save();
@@ -63,7 +68,14 @@ const appState = {
 
     addShop(name, address, contact, outstanding = 0, assignedRefId = "") {
         const id = 'shop_' + Date.now();
-        this.data.shops.push({ id, name, address, contact, outstanding: Number(outstanding), assignedRefId, allowedItems: [], createdAt: new Date().toISOString() });
+        this.data.shops.push({ 
+            id, name, address, contact, 
+            outstanding: Number(outstanding), 
+            assignedRefId, 
+            allowedItems: [], 
+            inventory: {}, // Track items currently in shop
+            createdAt: new Date().toISOString() 
+        });
         this.save();
     },
     updateShop(id, name, address, contact, outstanding, assignedRefId) {
@@ -122,6 +134,18 @@ const appState = {
         const shop = this.data.shops.find(s => s.id === shopId);
         if(shop) {
             shop.outstanding = (shop.outstanding || 0) + totalSale;
+            
+            // Update Shop-wise Inventory
+            if (itemsArr && itemsArr.length > 0) {
+                if (!shop.inventory) shop.inventory = {};
+                itemsArr.forEach(item => {
+                    const currentQty = shop.inventory[item.itemId] || 0;
+                    shop.inventory[item.itemId] = currentQty + (Number(item.qty) || 0);
+                    
+                    // Cleanup if qty hits 0 or below (though usually we want to see 0)
+                    if (shop.inventory[item.itemId] < 0) shop.inventory[item.itemId] = 0;
+                });
+            }
         }
 
         this.save();

@@ -48,7 +48,7 @@
                 </a>
                 <a href="#" data-target="admin-reports"
                     class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-green-50 hover:text-green-700 font-medium">
-                    <i class="fa-solid fa-chart-line w-5 text-center"></i><span>Monthly Reports</span>
+                    <i class="fa-solid fa-boxes-stacked w-5 text-center"></i><span>Shop Stock</span>
                 </a>
                 <a href="#" data-target="admin-operations"
                     class="nav-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-green-50 hover:text-green-700 font-medium bg-green-50/50">
@@ -162,71 +162,41 @@
                     <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
                     <div class="absolute bottom-6 left-6 flex justify-between items-end w-[calc(100%-3rem)]">
                         <div>
-                            <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Monthly Financial Report
+                            <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Shop-wise Stock Reports
                             </h1>
-                            <p class="text-gray-300 mt-1">Gains and Sales generated from Ref orders.</p>
+                            <p class="text-gray-300 mt-1">Current inventory levels held across all shops.</p>
                         </div>
                         <div class="flex gap-2 items-center">
-                            <div
-                                class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/30 text-white shadow-sm">
-                                <select id="report-month"
-                                    class="outline-none text-white font-semibold bg-transparent [&>option]:text-gray-800">
-                                    <!-- Populated via JS -->
-                                </select>
-                            </div>
-                            <button onclick="exportReportToPDF()"
+                            <button onclick="exportStockReportToPDF()"
                                 class="bg-white text-blue-600 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-gray-100 transition flex items-center gap-2">
-                                <i class="fa-solid fa-file-pdf"></i> PDF
-                            </button>
-                            <button onclick="clearMonthlyReport()"
-                                class="bg-red-500/20 backdrop-blur-md text-red-100 border border-red-500/30 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-red-500/40 transition flex items-center gap-2">
-                                <i class="fa-solid fa-trash-can"></i> Clear
+                                <i class="fa-solid fa-file-pdf"></i> Export Stock PDF
                             </button>
                         </div>
                     </div>
                     <div
-                        class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
+                        class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-sm bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
                         WICKRAMANAYAKE GROUP (PVT) LTD.</div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 shadow-lg text-white">
-                        <p class="text-blue-100 font-semibold uppercase tracking-wider text-sm mb-1">Total Sales Revenue
-                        </p>
-                        <h3 class="text-3xl font-bold font-sans" id="report-sales">Rs. 0.00</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-6 shadow-lg text-white">
+                        <p class="text-blue-100 font-semibold uppercase tracking-wider text-sm mb-1">Active Shops</p>
+                        <h3 class="text-3xl font-bold font-sans" id="stock-stat-shops">0</h3>
                     </div>
-                    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 shadow-lg text-white">
-                        <p class="text-orange-100 font-semibold uppercase tracking-wider text-sm mb-1">Total Cost Value
-                        </p>
-                        <h3 class="text-3xl font-bold font-sans" id="report-costs">Rs. 0.00</h3>
-                    </div>
-                    <div
-                        class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 shadow-lg text-white relative overflow-hidden">
-                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-xl"></div>
-                        <p class="text-green-100 font-semibold uppercase tracking-wider text-sm mb-1">Total Gain
-                            (Profit)</p>
-                        <h3 class="text-4xl font-bold font-sans" id="report-profit">Rs. 0.00</h3>
+                    <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 shadow-lg text-white">
+                        <p class="text-green-100 font-semibold uppercase tracking-wider text-sm mb-1">Total Items in Field</p>
+                        <h3 class="text-3xl font-bold font-sans" id="stock-stat-items">0</h3>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h2 class="text-xl font-bold text-gray-800 font-sans mb-6">Orders This Month</h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr
-                                    class="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
-                                    <th class="p-3 font-semibold">Date</th>
-                                    <th class="p-3 font-semibold">Action By</th>
-                                    <th class="p-3 font-semibold">Shop</th>
-                                    <th class="p-3 font-semibold text-right">Items</th>
-                                    <th class="p-3 font-semibold text-right">Revenue</th>
-                                    <th class="p-3 font-semibold text-right">Profit</th>
-                                </tr>
-                            </thead>
-                            <tbody id="report-orders-list" class="text-sm divide-y divide-gray-50"></tbody>
-                        </table>
-                    </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6 p-4 flex items-center sticky top-0 z-10">
+                    <i class="fa-solid fa-search text-gray-400 mr-3"></i>
+                    <input type="text" id="search-stock" placeholder="Search shop stock..."
+                        class="w-full bg-transparent outline-none">
+                </div>
+
+                <div class="space-y-6" id="stock-reports-list">
+                    <!-- Shop Stock Tables will be populated here -->
                 </div>
             </div>
 
@@ -262,10 +232,16 @@
                             <h1 class="text-3xl font-bold text-white font-sans tracking-tight">Manage Shops</h1>
                             <p class="text-gray-300 mt-1">Assign shops to your Refs and edit details.</p>
                         </div>
-                        <button onclick="openShopModal()"
-                            class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl shadow-lg border border-blue-500 flex items-center gap-2">
-                            <i class="fa-solid fa-plus"></i> Add Shop
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="exportShopsListPDF()"
+                                class="bg-white/20 backdrop-blur-md text-white border border-white/30 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-white/30 transition flex items-center gap-2">
+                                <i class="fa-solid fa-file-pdf"></i> Export Shop List
+                            </button>
+                            <button onclick="openShopModal()"
+                                class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl shadow-lg border border-blue-500 flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Add Shop
+                            </button>
+                        </div>
                     </div>
                     <div
                         class="absolute top-4 right-4 text-white/90 text-[10px] font-bold tracking-widest uppercase drop-shadow-md backdrop-blur-md bg-black/40 px-3 py-1.5 rounded-lg border border-white/20">
@@ -645,33 +621,84 @@
         </div>
     </div>
 
-    <!-- Shop History Modal -->
-    <div id="shop-history-modal"
-        class="custom-modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl hidden opacity-0 scale-95 transition-all">
-        <div class="bg-white rounded-3xl shadow-2xl p-6 m-4 relative flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold font-sans">Shop Activity History</h3>
-                <button onclick="closeModal('shop-history-modal')" class="text-gray-400 hover:text-gray-600"><i
-                        class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- Shop Detail Modal (The "Go Inside" View) -->
+    <div id="shop-detail-modal"
+        class="custom-modal fixed inset-0 z-50 hidden opacity-0 transition-all flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden relative scale-95 transition-transform duration-300">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-gray-100 flex justify-between items-start bg-gray-50/50">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                        <i class="fa-solid fa-store text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800" id="detail-shop-name">Shop Name</h2>
+                        <p class="text-sm text-gray-500" id="detail-shop-address">Shop Address</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="exportShopPDF()" class="bg-white text-blue-600 px-4 py-2 rounded-xl font-bold shadow-sm border border-blue-100 hover:bg-blue-50 transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> Download Report
+                    </button>
+                    <button onclick="closeModal('shop-detail-modal')" class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition shadow-sm">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
             </div>
 
-            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4 flex justify-between items-center">
-                <div>
-                    <h4 class="font-bold text-gray-900 text-lg" id="history-shop-name">Shop Name</h4>
-                    <p class="text-sm text-gray-500 font-medium mt-1">Full transaction log for this location.</p>
+            <!-- Shop Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-white border-b border-gray-50">
+                <div class="bg-red-50 p-4 rounded-2xl border border-red-100">
+                    <p class="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-1">Outstanding Balance</p>
+                    <p class="text-2xl font-bold text-red-600" id="detail-shop-outstanding">Rs. 0.00</p>
                 </div>
-                <div class="text-right">
-                    <p class="text-xs font-bold text-gray-500 uppercase">Current Balance</p>
-                    <p class="text-2xl font-bold text-red-600" id="history-shop-outstanding">Rs. 0.00</p>
+                <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                    <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Items in Stock</p>
+                    <p class="text-2xl font-bold text-blue-600" id="detail-shop-stock-count">0</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-2xl border border-green-100">
+                    <p class="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-1">Total Stock Value</p>
+                    <p class="text-2xl font-bold text-green-600" id="detail-shop-stock-value">Rs. 0.00</p>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto space-y-4 pr-2" id="shop-history-list">
-                <!-- Activities will be populated here -->
+            <!-- Detail Tabs Navigation -->
+            <div class="flex border-b border-gray-100 px-6 bg-white">
+                <button onclick="switchShopDetailTab('detail-stock')" id="tab-btn-stock" class="px-6 py-4 border-b-2 border-blue-600 text-blue-600 font-bold text-sm transition-all">Current Stock</button>
+                <button onclick="switchShopDetailTab('detail-history')" id="tab-btn-history" class="px-6 py-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 font-bold text-sm transition-all">Transaction History</button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="flex-1 overflow-y-auto p-6 bg-gray-50/30" id="shop-detail-content">
+                <!-- Stock View (Default) -->
+                <div id="detail-stock" class="shop-detail-tab-content">
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                                    <th class="p-4">Item Description</th>
+                                    <th class="p-4 text-center">Qty</th>
+                                    <th class="p-4 text-right">Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detail-stock-list" class="divide-y divide-gray-50">
+                                <!-- Stock rows populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- History View -->
+                <div id="detail-history" class="shop-detail-tab-content hidden space-y-4">
+                    <!-- History items populated via JS -->
+                </div>
             </div>
             
-            <div class="pt-4 border-t border-gray-100 mt-4 text-center">
-                <p class="text-xs text-gray-400">WICKRAMANAYAKE GROUP (PVT) LTD. - Secure Records</p>
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-gray-100 bg-white flex justify-center gap-2">
+                <button onclick="openDeliverModal(currentActiveShopId)" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-sm shadow-lg shadow-blue-200"><i class="fa-solid fa-truck mr-2"></i> Deliver Items</button>
+                <button onclick="openReturnModal(currentActiveShopId)" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-sm shadow-lg shadow-red-200"><i class="fa-solid fa-rotate-left mr-2"></i> Return Items</button>
+                <button onclick="openAdminTakeMoneyModal(currentActiveShopId)" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold text-sm shadow-lg shadow-green-200"><i class="fa-solid fa-hand-holding-dollar mr-2"></i> Take Money</button>
             </div>
         </div>
     </div>

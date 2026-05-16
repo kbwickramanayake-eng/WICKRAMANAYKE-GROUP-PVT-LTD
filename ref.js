@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
         filteredShops.forEach(shop => {
             const outstanding = shop.outstanding || 0;
             const card = document.createElement('div');
-            card.className = `rounded-2xl border transition-all bg-white hover:border-green-300 cursor-pointer shadow-sm overflow-hidden flex flex-col group`;
-            card.onclick = () => openVisitModal(shop);
+            card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:border-green-300 transition-all cursor-pointer group";
+            card.onclick = () => openShopDetailModal(shop.id);
             
             card.innerHTML = `
                 <div class="relative w-full h-32 bg-gray-100 overflow-hidden">
@@ -49,10 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Balance to take</p>
                             <p class="font-bold ${outstanding > 0 ? 'text-red-600' : 'text-green-600'} text-lg leading-none">${formatCurrency(outstanding)}</p>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="event.stopPropagation(); openVisitModal(${JSON.stringify(shop).replace(/"/g, '&quot;')})" class="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1"><i class="fa-solid fa-hand-holding-dollar"></i> Collect</button>
-                            <button onclick="event.stopPropagation(); openRefReturnModal(${JSON.stringify(shop).replace(/"/g, '&quot;')})" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1"><i class="fa-solid fa-rotate-left"></i> Return</button>
-                            <button onclick="event.stopPropagation(); openShopHistoryModal('${shop.id}')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+                        <div class="flex flex-wrap gap-2">
+                            <div class="flex-1 text-center py-2 text-green-600 font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> View Details</div>
                         </div>
                     </div>
                 </div>
@@ -218,38 +216,99 @@ document.addEventListener('DOMContentLoaded', () => {
         
         closeModal('return-modal');
         showToast('Return recorded successfully!');
-        renderRepShops(document.getElementById('rep-search-shops').value);
-    };
+        });
+    }
 
-    // Shop History Logic
-    window.openShopHistoryModal = (shopId) => {
+    // Shop Detail Logic
+    window.currentActiveShop = null;
+
+    window.openShopDetailModal = (shopId) => {
         const shop = appState.data.shops.find(s => s.id === shopId);
         if(!shop) return;
-        renderShopHistory(shopId);
-        openModal('shop-history-modal');
+        
+        window.currentActiveShop = shop;
+        document.getElementById('detail-shop-name').textContent = shop.name;
+        document.getElementById('detail-shop-address').textContent = shop.address;
+        document.getElementById('detail-shop-outstanding').textContent = formatCurrency(shop.outstanding || 0);
+        
+        // Stats
+        const inventory = shop.inventory || {};
+        let totalItems = 0;
+        let totalValue = 0;
+        Object.keys(inventory).forEach(id => {
+            const qty = inventory[id];
+            if (qty > 0) {
+                totalItems += qty;
+                const itemDef = appState.data.items.find(i => i.id === id);
+                if (itemDef) totalValue += itemDef.salePrice * qty;
+            }
+        });
+        
+        document.getElementById('detail-shop-stock-count').textContent = totalItems;
+        document.getElementById('detail-shop-stock-value').textContent = formatCurrency(totalValue);
+        
+        renderShopDetailStock(shop);
+        renderShopDetailHistory(shopId);
+        switchShopDetailTab('detail-stock');
+        
+        openModal('shop-detail-modal');
     };
 
-    function renderShopHistory(shopId) {
-        const container = document.getElementById('shop-history-list');
+    window.switchShopDetailTab = (tabId) => {
+        document.querySelectorAll('.shop-detail-tab-content').forEach(c => c.classList.add('hidden'));
+        document.getElementById(tabId).classList.remove('hidden');
+        
+        // Update tab buttons
+        document.getElementById('tab-btn-stock').className = tabId === 'detail-stock' ? 'px-6 py-4 border-b-2 border-blue-600 text-blue-600 font-bold text-sm transition-all' : 'px-6 py-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 font-bold text-sm transition-all';
+        document.getElementById('tab-btn-history').className = tabId === 'detail-history' ? 'px-6 py-4 border-b-2 border-blue-600 text-blue-600 font-bold text-sm transition-all' : 'px-6 py-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 font-bold text-sm transition-all';
+    };
+
+    function renderShopDetailStock(shop) {
+        const tbody = document.getElementById('detail-stock-list');
+        tbody.innerHTML = '';
+        
+        const inventory = shop.inventory || {};
+        const itemIds = Object.keys(inventory).filter(id => inventory[id] > 0);
+        
+        if (itemIds.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-gray-400 italic">No items currently in shop.</td></tr>`;
+            return;
+        }
+
+        itemIds.forEach(id => {
+            const itemDef = appState.data.items.find(i => i.id === id);
+            const qty = inventory[id];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="p-4 font-medium text-gray-800">${itemDef ? itemDef.name : 'Unknown Item'}</td>
+                <td class="p-4 text-center font-bold text-blue-600">${qty}</td>
+                <td class="p-4 text-right font-bold text-gray-700">${itemDef ? formatCurrency(itemDef.salePrice * qty) : '-'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderShopDetailHistory(shopId) {
+        const container = document.getElementById('detail-history');
         container.innerHTML = '';
         
         const shopActivities = appState.data.activities.filter(a => a.shopId === shopId);
         
         if(shopActivities.length === 0) {
-            container.innerHTML = `<div class="text-center py-12 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed">No history found.</div>`;
+            container.innerHTML = `<div class="text-center py-12 text-gray-400">No transaction history found.</div>`;
             return;
         }
 
         shopActivities.forEach(act => {
             const div = document.createElement('div');
-            div.className = "bg-white rounded-2xl p-4 border border-gray-100 shadow-sm";
+            div.className = "bg-white rounded-2xl p-5 border border-gray-100 shadow-sm";
             
             let itemsHtml = '';
             if(act.items && act.items.length > 0) {
-                itemsHtml = `<div class="mt-2 text-[10px] bg-gray-50 rounded border overflow-hidden">
+                itemsHtml = `<div class="mt-3 text-[11px] bg-gray-50 rounded-lg border overflow-hidden">
                     <table class="w-full text-left">
-                        <tr class="bg-gray-100 text-gray-500"><th class="p-1 px-2">Item</th><th class="p-1 text-center">Qty</th><th class="p-1 text-right px-2">Subtotal</th></tr>
-                        ${act.items.map(i => `<tr><td class="p-1 px-2 border-t">${i.name}</td><td class="p-1 text-center border-t">${i.qty}</td><td class="p-1 text-right px-2 border-t font-bold">${formatCurrency(Math.abs(i.salePrice * i.qty))}</td></tr>`).join('')}
+                        <tr class="bg-gray-100/50 text-gray-500 font-bold uppercase"><th class="p-2">Item</th><th class="p-2 text-center">Qty</th><th class="p-2 text-right">Subtotal</th></tr>
+                        ${act.items.map(i => `<tr><td class="p-2 border-t">${i.name}</td><td class="p-2 text-center border-t">${i.qty}</td><td class="p-2 text-right border-t font-bold">${formatCurrency(Math.abs(i.salePrice * i.qty))}</td></tr>`).join('')}
                     </table>
                 </div>`;
             }
@@ -258,33 +317,51 @@ document.addEventListener('DOMContentLoaded', () => {
             let valColor = 'text-blue-600';
             if (act.totalSale < 0) {
                 if (act.items && act.items.length > 0) {
-                    typeBadge = `<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Return</span>`;
+                    typeBadge = `<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-[10px] font-bold">RETURN</span>`;
                     valColor = 'text-red-600';
                 } else {
-                    typeBadge = `<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Payment</span>`;
+                    typeBadge = `<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold">PAYMENT</span>`;
                     valColor = 'text-green-600';
                 }
             } else {
-                typeBadge = `<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Delivery</span>`;
+                typeBadge = `<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-bold">DELIVERY</span>`;
             }
 
             div.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-2">
-                            ${typeBadge}
-                            <span class="text-[10px] text-gray-400 font-bold">${formatDate(act.timestamp)}</span>
-                        </div>
-                        <h4 class="font-bold text-gray-800 text-sm">${act.repName}</h4>
+                    <div class="flex items-center gap-2">
+                        ${typeBadge}
+                        <span class="text-xs text-gray-400 font-bold">${formatDate(act.timestamp)}</span>
                     </div>
-                    <p class="font-bold ${valColor} text-sm">${formatCurrency(Math.abs(act.totalSale))}</p>
+                    <p class="font-bold ${valColor} text-lg">${formatCurrency(Math.abs(act.totalSale))}</p>
                 </div>
-                ${act.notes ? `<p class="text-[11px] text-gray-500 italic">"${act.notes}"</p>` : ''}
+                <p class="text-sm font-bold text-gray-700">Logged by ${act.repName}</p>
+                ${act.notes ? `<p class="text-xs text-gray-500 italic mt-1">"${act.notes}"</p>` : ''}
                 ${itemsHtml}
             `;
             container.appendChild(div);
         });
     }
+
+    window.exportShopPDF = () => {
+        const element = document.getElementById('shop-detail-modal').querySelector('.bg-white');
+        
+        // Hide buttons for PDF
+        const buttons = element.querySelectorAll('button');
+        buttons.forEach(b => b.style.display = 'none');
+        
+        const opt = {
+            margin:       0.2,
+            filename:     `${window.currentActiveShop.name}_Report_${new Date().toISOString().slice(0,10)}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        
+        html2pdf().set(opt).from(element).save().then(() => {
+            buttons.forEach(b => b.style.display = 'inline-flex');
+        });
+    };
 
     renderRepShops();
 });
